@@ -5,3 +5,5 @@ select
     status
 
 from {{ source('jaffle_shop', 'orders') }}
+
+{{ dev_limit_days_of_data('order_date', 100) }}
