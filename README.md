@@ -19,3 +19,6 @@ Try running the following commands:
 - enable billing in GCP project
 - dbt run --profile dbt_warehouse  --select elementary
 - dbt run-operation elementary.generate_elementary_cli_profile
+
+## Error
+Ran into same error as stated [here](https://github.com/elementary-data/elementary/issues/1679)
