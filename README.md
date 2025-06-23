@@ -14,5 +14,8 @@ Try running the following commands:
 - Find [dbt events](https://events.getdbt.com) near you
 - Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
 
-## Commands for local test using ~/.dbt/profiles.yml:
+## Notes for local test using ~/.dbt/profiles.yml:
 - dbt run --profile dbt_warehouse --select customer
+- enable billing in GCP project
+- dbt run --profile dbt_warehouse  --select elementary
+- dbt run-operation elementary.generate_elementary_cli_profile
