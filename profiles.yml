@@ -1,0 +1,10 @@
+my-bigquery-db:
+  target: dev # this is the default target
+  outputs:
+    dev:
+      type: bigquery
+      method: service-account
+      project: dbt-learn-400519
+      dataset: dbt_learn
+      keyfile: keys/dbt-learn-gcp.json
+      threads: 2

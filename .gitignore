@@ -6,3 +6,7 @@ logs/
 .venv/
 package-lock.yml
 edr_target/
+keys/
+.user.yml
+.python-version
+uv.lock
