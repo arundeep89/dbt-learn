@@ -1,6 +1,5 @@
 {{
     config(
-        materialized='view',
         alias='stg_users'
     )
 }}
