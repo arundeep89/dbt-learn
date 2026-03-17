@@ -41,3 +41,5 @@ models:
   thelook_ecommerce:
     staging:
       +materialized: view
+    marts:
+      +materialized: table

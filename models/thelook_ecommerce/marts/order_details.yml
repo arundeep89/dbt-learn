@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: order_details
+    description: "This table contains detailed information about each order, including product details"
+    columns:
+      - name: order_id
+        description: "Unique identifier for each order"
+      - name: order_item_id
+        description: "Unique identifier for each item in the order"
+      - name: product_name
+        description: "Name of the product included in the order"
+      - name: product_category
+        description: "Category of the product included in the order"
+      - name: product_cost
+        description: "Cost of the product at the time of the order"
+      - name: sale_price
+        description: "Sale price of the product at the time of the order"
+      - name: created_at
+        description: "Timestamp when the order item was created"
+      - name: shipped_at
+        description: "Timestamp when the order item was shipped"
+      - name: delivered_at
+        description: "Timestamp when the order item was delivered"
+      - name: returned_at
+        description: "Timestamp when the order item was returned (if applicable)"      
+      - name: order_item_status
+        description: "Current status of the order item"
+        data_tests:
+          - accepted_values:
+              values: ['Complete', 'Shipped', 'Cancelled', 'Returned', 'Processing']
