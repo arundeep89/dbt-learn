@@ -1,0 +1,15 @@
+snapshots:
+  - name: users_snapshot
+    relation: source('thelook_ecommerce', 'users')
+    description: "Snapshot of the users table to track changes over time."
+    config:
+      schema: snapshots
+      strategy: check
+      unique_key: id
+      check_cols:
+        - first_name
+        - last_name
+        - email
+        - age
+      updated_at: created_at
+      dbt_valid_to_current: DATE('9999-12-31')

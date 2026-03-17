@@ -6,6 +6,9 @@ models:
     columns:
       - name: event_id
         description: "Unique identifier for each event"
+        data_tests:
+          - unique
+          - not_null
       - name: user_id
         description: "Identifier for the user associated with the event"
       - name: event_type

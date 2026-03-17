@@ -3,6 +3,11 @@ version: 2
 models:
   - name: order_details
     description: "This table contains detailed information about each order, including product details"
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - order_id
+            - order_item_id
     columns:
       - name: order_id
         description: "Unique identifier for each order"
