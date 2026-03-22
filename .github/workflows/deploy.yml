@@ -40,7 +40,7 @@ jobs:
         run: dbt deps
 
       - name: dbt run
-        run: dbt run --target prod
+        run: dbt run --full-refresh --target prod
 
       - name: Run dbt test
         run: dbt test --target prod
