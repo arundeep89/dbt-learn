@@ -8,3 +8,12 @@ my-bigquery-db:
       dataset: dbt_learn
       keyfile: keys/dbt-learn-gcp.json
       threads: 2
+  target: prod
+  outputs:
+    prod:
+      type: bigquery
+      method: service-account
+      project: dbt-prod-ad
+      dataset: dbt_prod
+      keyfile: "{{ env_var('DBT_GCP_JSON_KEY_FILE_LOCATION') }}"
+      threads: 2
