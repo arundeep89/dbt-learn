@@ -8,8 +8,6 @@ my-bigquery-db:
       dataset: dbt_learn
       keyfile: keys/dbt-learn-gcp.json
       threads: 2
-  target: prod
-  outputs:
     prod:
       type: bigquery
       method: service-account
