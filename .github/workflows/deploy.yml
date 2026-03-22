@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install requirements
         run: |
@@ -32,7 +32,7 @@ jobs:
       - name: Set up Google Cloud authentication
         run: |
           echo "${{ secrets.DBT_GCP_JSON_KEY_FILE }}" > /tmp/sa_key_file.json
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa_key_file.json
+          echo "export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa_key_file.json" >> $GITHUB_ENV
       
       - name: Install dbt dependencies
         run: dbt deps
