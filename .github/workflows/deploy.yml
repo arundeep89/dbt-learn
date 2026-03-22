@@ -30,8 +30,10 @@ jobs:
           pip install -r requirements.txt  
 
       - name: Set up Google Cloud authentication
+        env:
+          DBT_KEYFILE: ${{ secrets.DBT_GCP_JSON_KEY_FILE }}
         run: |
-          echo "${{ secrets.DBT_GCP_JSON_KEY_FILE }}" > /tmp/sa_key_file.json
+          echo "$DBT_KEYFILE" > /tmp/sa_key_file.json
           echo "export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa_key_file.json" >> $GITHUB_ENV
       
       - name: Install dbt dependencies
