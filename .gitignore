@@ -10,3 +10,4 @@ keys/
 .user.yml
 .python-version
 uv.lock
+.secrets

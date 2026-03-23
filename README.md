@@ -1,24 +1,43 @@
-Welcome to your new dbt project!
+# dbt-learn Project
 
-### Using the starter project
+Modern data transformation project using dbt with BigQuery.
 
-Try running the following commands:
-- dbt run
-- dbt test
+## Project Structure
+- `models/`: dbt models organized by staging and marts
 
+## Schema Organization
+- **Staging Schema**: Cleaned, standardized raw data (views)
+- **Marts Schema**: Business-ready dimensional models (tables)
+- **Default Schema**: Intermediate models (views)
 
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Check out [Discourse](https://discourse.getdbt.com/) for commonly asked questions and answers
-- Join the [dbt community](https://getdbt.com/community) to learn from other analytics engineers
-- Find [dbt events](https://events.getdbt.com) near you
-- Check out [the blog](https://blog.getdbt.com/) for the latest news on dbt's development and best practices
+## Environment Strategy
+- **Development**: Isolated GCP project for safe experimentation
+- **Production**: Separate GCP project for stable, validated data
+Configure via `profiles.yml` with distinct targets for each environment.
 
-## Notes for local test using ~/.dbt/profiles.yml:
-- dbt run --profile dbt_warehouse --select customer
-- enable billing in GCP project
-- dbt run --profile dbt_warehouse  --select elementary
-- dbt run-operation elementary.generate_elementary_cli_profile
+## Usage
+```bash
+# Run all models
+dbt run
 
-## Error
-Ran into same error as stated [here](https://github.com/elementary-data/elementary/issues/1679)
+# Test data quality
+dbt test
+
+# Build and test
+dbt build
+```
+
+## Local GHA Testing
+Use `act` to test GitHub Actions workflows locally:
+```bash
+# Install act
+brew install act
+
+# Dry run
+act workflow_dispatch --secret-file .secrets -n
+
+# Execute
+act workflow_dispatch --secret-file .secrets
+```
+
+This will require creating `.sercrets` file that contains the environment variable `DBT_GCP_JSON_KEY_FILE` as an inline value. To convert a JSON key fle to inline string use `cat <path-to-sa-key>.json | jq -c .`
