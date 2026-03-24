@@ -1,0 +1,67 @@
+name: dbt Slim CI
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+env:
+  DBT_PROJECT_DIR: ./
+  DBT_PROFILES_DIR: ./
+  DBT_GCP_JSON_KEY_FILE_LOCATION: /tmp/sa_key_file.json
+  DBT_GCP_CI_JSON_KEY_FILE: ${{ secrets.DBT_GCP_CI_JSON_KEY_FILE }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+
+jobs:
+  slim_ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Write GCP service account key
+        env:
+          DBT_KEYFILE: ${{ secrets.DBT_GCP_CI_JSON_KEY_FILE }}
+        run: |
+          echo "$DBT_KEYFILE" > /tmp/sa_key_file.json
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.DBT_GCP_CI_JSON_KEY_FILE }}
+
+      - name: Download prod manifest from GCS
+        run: |
+          mkdir -p ./prod-state
+          gcloud storage cp gs://my-dbt-artifacts-ad/manifest.json ./prod-state/manifest.json
+
+      - name: Install dbt dependencies
+        run: dbt deps
+
+      - name: dbt build (modified models + downstream)
+        run: |
+          dbt build \
+            --select state:modified+ \
+            --defer \
+            --state ./prod-state/ \
+            --target ci
+
+      - name: Drop CI schema (cleanup)
+        if: always()
+        run: |
+          dbt run-operation drop_ci_schema --target ci

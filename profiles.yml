@@ -15,3 +15,12 @@ my-bigquery-db:
       dataset: dbt_prod
       keyfile: "{{ env_var('DBT_GCP_JSON_KEY_FILE_LOCATION') }}"
       threads: 2
+    ci:
+      type: bigquery
+      method: service-account
+      project: dbt-learn-400519
+      dataset: "dbt_ci_pr{{ env_var('PR_NUMBER') }}"
+      keyfile: "{{ env_var('DBT_GCP_JSON_KEY_FILE_LOCATION') }}"
+      threads: 2
+      timeout_seconds: 300
+      location: US
