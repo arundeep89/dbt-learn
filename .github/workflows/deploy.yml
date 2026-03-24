@@ -6,7 +6,6 @@ on:
     paths-ignore:
       - 'README.md'
       - '.gitignore'
-
   workflow_dispatch:
 
 env:
@@ -28,6 +27,11 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Create and start virtual environment
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+
       - name: Install requirements
         run: |
           python -m pip install --upgrade pip
@@ -39,6 +43,11 @@ jobs:
         run: |
           echo "$DBT_KEYFILE" > /tmp/sa_key_file.json
           echo "export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa_key_file.json" >> $GITHUB_ENV
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.DBT_GCP_JSON_KEY_FILE }} # Use the GitHub secret you created
       
       - name: Install dbt dependencies
         run: dbt deps
@@ -49,3 +58,9 @@ jobs:
       - name: Run dbt test
         run: dbt test --target prod
         
+      - name: Upload manifest.json to GCS
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: target/manifest.json
+          destination: my-dbt-artifacts-ad # Replace with your bucket name and optional prefix
+          parent: false # Optional: Prevents the "target/" directory from being included in the GCS path
