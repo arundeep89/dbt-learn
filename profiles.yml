@@ -23,4 +23,3 @@ my-bigquery-db:
       keyfile: "{{ env_var('DBT_GCP_JSON_KEY_FILE_LOCATION') }}"
       threads: 2
       timeout_seconds: 300
-      location: US

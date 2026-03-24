@@ -37,12 +37,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt  
 
-      - name: Set up Google Cloud authentication
+      - name: Write GCP service account key
         env:
           DBT_KEYFILE: ${{ secrets.DBT_GCP_JSON_KEY_FILE }}
         run: |
           echo "$DBT_KEYFILE" > /tmp/sa_key_file.json
-          echo "export GOOGLE_APPLICATION_CREDENTIALS=/tmp/sa_key_file.json" >> $GITHUB_ENV
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2

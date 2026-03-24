@@ -28,6 +28,9 @@ dbt build
 ```
 
 ## Local GHA Testing
+
+This will require creating `.sercrets` file that contains the environment variable `DBT_GCP_JSON_KEY_FILE` and `DBT_GCP_CI_JSON_KEY_FILE` as an inline value. To convert a JSON key fle to inline string use `cat <path-to-sa-key>.json | jq -c .`
+
 Use `act` to test GitHub Actions workflows locally:
 ```bash
 # Install act
@@ -38,6 +41,8 @@ act workflow_dispatch --secret-file .secrets -n
 
 # Execute
 act workflow_dispatch --secret-file .secrets
+
+# specific workflow
+act --workflows .github/workflows/deploy.yml --secret-file .secrets
 ```
 
-This will require creating `.sercrets` file that contains the environment variable `DBT_GCP_JSON_KEY_FILE` as an inline value. To convert a JSON key fle to inline string use `cat <path-to-sa-key>.json | jq -c .`

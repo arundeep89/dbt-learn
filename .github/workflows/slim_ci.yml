@@ -45,10 +45,13 @@ jobs:
         with:
           credentials_json: ${{ secrets.DBT_GCP_CI_JSON_KEY_FILE }}
 
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v0'
+      
       - name: Download prod manifest from GCS
         run: |
           mkdir -p ./prod-state
-          gcloud storage cp gs://my-dbt-artifacts-ad/manifest.json ./prod-state/manifest.json
+          gsutil cp gs://my-dbt-artifacts-ad/manifest.json ./prod-state/manifest.json
 
       - name: Install dbt dependencies
         run: dbt deps
@@ -58,8 +61,10 @@ jobs:
           dbt build \
             --select state:modified+ \
             --defer \
-            --state ./prod-state/ \
+            --state ./prod-state/manifest.json \
             --target ci
+            --fail-fast \
+            --empty  # Dry-run schemas only—saves massive compute!
 
       - name: Drop CI schema (cleanup)
         if: always()
