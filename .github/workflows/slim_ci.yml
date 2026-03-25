@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'models/**'
+      - 'macros/**'
     types:
       - opened
       - synchronize
@@ -46,7 +49,7 @@ jobs:
           credentials_json: ${{ secrets.DBT_GCP_CI_JSON_KEY_FILE }}
 
       - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v0'
+        uses: 'google-github-actions/setup-gcloud@v2'
       
       - name: Download prod manifest from GCS
         run: |
@@ -61,10 +64,10 @@ jobs:
           dbt build \
             --select state:modified+ \
             --defer \
-            --state ./prod-state/manifest.json \
-            --target ci
+            --state ./prod-state/ \
+            --target ci \
             --fail-fast \
-            --empty  # Dry-run schemas only—saves massive compute!
+            --empty
 
       - name: Drop CI schema (cleanup)
         if: always()
