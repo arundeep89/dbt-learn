@@ -1,4 +1,4 @@
-name: dbt CI/CD
+name: dbt deploy
 on:
   push:
     branches:
