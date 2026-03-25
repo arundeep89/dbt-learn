@@ -11,7 +11,7 @@ select
     p.product_category,
     p.product_cost,
     oi.sale_price,
-    oi.created_at as created_at,
+    oi.created_at as created_at_time,
     oi.shipped_at as shipped_at,
     oi.delivered_at as delivered_at,
     oi.returned_at as returned_at,
