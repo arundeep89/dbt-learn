@@ -11,3 +11,5 @@ keys/
 .python-version
 uv.lock
 .secrets
+.env
+.vscode/

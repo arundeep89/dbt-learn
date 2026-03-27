@@ -11,10 +11,10 @@ models:
           - unique
       - name: user_id
         description: "Identifier for the user who triggered the event"
-        data_tests:
-          - not_null
       - name: session_id
         description: "Identifier for the session during which the event occurred"
+        data_tests:
+          - not_null
       - name: event_type
         description: "Type of the event (e.g., click, purchase)"
         data_tests:
