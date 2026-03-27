@@ -1,11 +1,12 @@
 {{
     config(
-        alias='order_details',
+        alias='fact_order',
         materialized='table'
     )
 }}
 select
     o.order_id,
+    o.user_id,
     oi.order_item_id,
     p.product_name,
     p.product_category,

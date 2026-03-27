@@ -1,0 +1,21 @@
+version: 2
+
+models:
+  - name: dim_users
+    description: "Dimension table containing one row per user with their profile information"
+    columns:
+      - name: user_id
+        description: "Unique identifier for each user"
+        data_tests:
+          - not_null
+          - unique
+      - name: first_name
+        description: "First name of the user"
+      - name: last_name
+        description: "Last name of the user"
+      - name: email
+        description: "Email address of the user"
+      - name: age
+        description: "Age of the user"
+      - name: created_at
+        description: "Timestamp when the user account was created"

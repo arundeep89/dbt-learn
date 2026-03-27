@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: fact_events
+    description: "Fact table containing one row per user event, partitioned by day"
+    columns:
+      - name: event_id
+        description: "Unique identifier for each event"
+        data_tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: "Identifier for the user who triggered the event"
+        data_tests:
+          - not_null
+      - name: session_id
+        description: "Identifier for the session during which the event occurred"
+      - name: event_type
+        description: "Type of the event (e.g., click, purchase)"
+        data_tests:
+          - not_null
+      - name: uri
+        description: "URI of the page associated with the event"
+      - name: traffic_source
+        description: "Source of the traffic that led to the event"
+      - name: browser
+        description: "Browser used by the user during the event"
+      - name: created_at
+        description: "Timestamp when the event occurred"
+        data_tests:
+          - not_null
