@@ -1,6 +1,6 @@
 {{
     config(
-        alias='fact_order',
+        alias='fact_order_item',
         materialized='table'
     )
 }}

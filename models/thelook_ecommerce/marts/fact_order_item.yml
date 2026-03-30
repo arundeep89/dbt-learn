@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fact_order
+  - name: fact_order_item
     description: "This table contains detailed information about each order, including product details"
     data_tests:
       - dbt_utils.unique_combination_of_columns:
@@ -38,41 +38,48 @@ models:
               values: ['Complete', 'Shipped', 'Cancelled', 'Returned', 'Processing']
 
 semantic_models: 
-  - name: order_details
-    description: "This is semantic model for order."
-    model: ref('fact_order')
+  - name: order_item_details
+    description: "This is semantic model for order items."
+    model: ref('fact_order_item')
+    enabled: true
     entities:
-      - name: order_id
-        type: primary_key
+      - name: order_item_id
+        type: primary
       - name: user_id
-        type: foreign_key
+        type: foreign
+      - name: order_id
+        type: foreign
     dimensions:
       - name: product_category
         type: categorical
       - name: created_at
         type: time
+        description: "Timestamp when the order item was created (sourced from order items, not the parent order)"
         type_params:
           time_granularity: day
     measures:
-      - name: total_order
+      - name: order_value
         agg: sum
         expr: sale_price
-      - name: total_cost
+      - name: order_cost
         agg: sum
         expr: product_cost
 
 metrics:
   - name: total_revenue
+    label: Total Revenue
     description: "Total revenue generated from orders"
     type: simple
     type_params:
-      measure: total_order
+      measure: order_value
   - name: total_cost
+    label: Total Cost
     description: "Total cost of products in orders"
     type: simple
     type_params:
-      measure: total_cost
+      measure: order_cost
   - name: profit
+    label: Total profit
     description: "Total profit from orders"
     type: derived
     type_params:
