@@ -1,0 +1,20 @@
+version: 2
+
+semantic_models: 
+  - name: user_details
+    defaults:
+      agg_time_dimension: created_at
+    description: "This is semantic model for user details."
+    model: ref('dim_users')
+    entities:
+      - name: user_id
+        type: primary
+    dimensions:
+      - name: created_at
+        type: time
+        expr: cast(created_at as DATE)
+        type_params:
+          time_granularity: day
+      - name: is_over_50_years_old
+        type: categorical
+        expr: case when age > 50 then 'Yes' else 'No' end

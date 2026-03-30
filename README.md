@@ -46,3 +46,15 @@ act workflow_dispatch --secret-file .secrets
 act --workflows .github/workflows/deploy.yml --secret-file .secrets
 ```
 
+## dbt metrics
+
+This is built using metricsflow
+
+```bash
+# To list all metrics
+mf list metrics
+
+# To run a query
+mf query --metrics total_revenue
+mf query --metrics profit --group-by user_id__is_over_50_years_old
+```
