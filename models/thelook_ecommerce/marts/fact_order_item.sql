@@ -12,10 +12,10 @@ select
     p.product_category,
     p.product_cost,
     oi.sale_price,
-    oi.created_at as created_at,
-    oi.shipped_at as shipped_at,
-    oi.delivered_at as delivered_at,
-    oi.returned_at as returned_at,
+    CAST(oi.created_at AS DATE) as created_at,
+    CAST(oi.shipped_at AS DATE) as shipped_at,
+    CAST(oi.delivered_at AS DATE) as delivered_at,
+    CAST(oi.returned_at AS DATE) as returned_at,
     oi.status as order_item_status
 from {{ ref('stg_orders') }} o
 inner join {{ ref('stg_order_items') }} oi
