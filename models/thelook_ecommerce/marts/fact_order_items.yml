@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: fact_order_item
+  - name: fact_order_items
     description: "This table contains detailed information about each order, including product details"
     data_tests:
       - dbt_utils.unique_combination_of_columns:

@@ -22,11 +22,4 @@ metrics:
       metrics:
         - name: total_revenue
         - name: total_cost
-  - name: over_50_revenue
-    label: "Revenue from users over 50"
-    description: "Total revenue generated from users over 50 years old"
-    type: simple
-    type_params:
-      measure:
-        name: order_value
-    filter: "user_id__is_over_50_years_old = 'Yes'"
+

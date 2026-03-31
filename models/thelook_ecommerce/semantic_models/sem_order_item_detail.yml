@@ -1,11 +1,11 @@
 version: 2
 
 semantic_models: 
-  - name: order_item_details
+  - name: sem_order_item_detail
     defaults:
       agg_time_dimension: created_at
     description: "This is semantic model for order items."
-    model: ref('fact_order_item')
+    model: ref('fact_order_items')
     entities:
       - name: order_item_id
         type: primary
