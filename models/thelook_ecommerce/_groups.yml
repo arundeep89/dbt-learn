@@ -1,0 +1,9 @@
+groups:
+  - name: sales
+    owner: 
+      name: "Sales Team"
+      email: "sales@example.com"
+  - name: ecommerce
+    owner:
+      name: "Ecommerce Team"
+      email: "ecomm@example.com"

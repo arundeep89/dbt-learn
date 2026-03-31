@@ -1,8 +1,10 @@
 version: 2
 
 models:
-  - name: fact_order
+  - name: fact_order_items
     description: "This table contains detailed information about each order, including product details"
+    config:
+      group: sales
     data_tests:
       - dbt_utils.unique_combination_of_columns:
           combination_of_columns:
@@ -36,3 +38,4 @@ models:
         data_tests:
           - accepted_values:
               values: ['Complete', 'Shipped', 'Cancelled', 'Returned', 'Processing']
+

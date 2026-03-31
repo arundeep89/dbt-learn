@@ -1,6 +1,6 @@
 {{
     config(
-        allias='stg_products'
+        alias='stg_products'
     )
 }}
 

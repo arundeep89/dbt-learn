@@ -1,0 +1,25 @@
+metrics:
+  - name: total_revenue
+    label: Total Revenue
+    description: "Total revenue generated from orders"
+    type: simple
+    type_params:
+      measure:
+        name: order_value
+  - name: total_cost
+    label: Total Cost
+    description: "Total cost of products in orders"
+    type: simple
+    type_params:
+      measure:
+        name: order_cost
+  - name: profit
+    label: Total profit
+    description: "Total profit from orders"
+    type: derived
+    type_params:
+      expr: total_revenue - total_cost
+      metrics:
+        - name: total_revenue
+        - name: total_cost
+

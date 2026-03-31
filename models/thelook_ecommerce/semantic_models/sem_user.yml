@@ -1,0 +1,27 @@
+version: 2
+
+semantic_models: 
+  - name: sem_user
+    defaults:
+      agg_time_dimension: created_at
+    description: "This is semantic model for user details."
+    model: ref('dim_user')
+    entities:
+      - name: user_id
+        type: primary
+    dimensions:
+      - name: created_at
+        type: time
+        expr: cast(created_at as DATE)
+        type_params:
+          time_granularity: day
+      - name: age_segment
+        type: categorical
+        expr: >
+          case
+            when age < 18 then 'Under 18'
+            when age between 18 and 30 then '18-30'
+            when age between 31 and 50 then '31-50'
+            when age between 51 and 65 then '51-65'
+            else 'Over 65'
+          end

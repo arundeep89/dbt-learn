@@ -46,3 +46,21 @@ act workflow_dispatch --secret-file .secrets
 act --workflows .github/workflows/deploy.yml --secret-file .secrets
 ```
 
+## dbt metrics
+
+This is built using metricsflow  
+[Reference](https://docs.getdbt.com/best-practices/how-we-build-our-metrics/semantic-layer-1-intro?version=1.11)
+
+```bash
+# To list all metrics
+mf list metrics
+
+# To run a query
+mf query --metrics total_revenue
+mf query --metrics profit --group-by user_id__age_segment
+```
+
+Sample Jaffle shop metricflow [repo](https://github.com/dbt-labs/jaffle-sl-template)
+
+## cube
+Sample Jaffle Shop [repo](https://github.com/cube-js/jaffle_shop_cube)

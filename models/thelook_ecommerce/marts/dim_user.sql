@@ -1,6 +1,6 @@
 {{
     config(
-        alias='dim_users',
+        alias='dim_user',
         materialized='table'
     )
 }}

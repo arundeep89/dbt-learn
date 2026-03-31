@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: dim_users
+  - name: dim_user
     description: "Dimension table containing one row per user with their profile information"
     columns:
       - name: user_id

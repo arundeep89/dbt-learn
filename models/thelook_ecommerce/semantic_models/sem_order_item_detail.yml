@@ -1,0 +1,30 @@
+version: 2
+
+semantic_models: 
+  - name: sem_order_item_detail
+    defaults:
+      agg_time_dimension: created_at
+    description: "This is semantic model for order items."
+    model: ref('fact_order_items')
+    entities:
+      - name: order_item_id
+        type: primary
+      - name: user_id
+        type: foreign
+      - name: order_id
+        type: foreign
+    dimensions:
+      - name: product_category
+        type: categorical
+      - name: created_at
+        type: time
+        expr: cast(created_at as DATE)
+        type_params:
+          time_granularity: day
+    measures:
+      - name: order_value
+        agg: sum
+        expr: sale_price
+      - name: order_cost
+        agg: sum
+        expr: product_cost

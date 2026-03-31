@@ -12,4 +12,5 @@ keys/
 uv.lock
 .secrets
 .env
+.envrc
 .vscode/
