@@ -3,6 +3,8 @@ version: 2
 models:
   - name: fact_events
     description: "Fact table containing one row per user event, partitioned by day"
+    config:
+      group: ecommerce
     columns:
       - name: event_id
         description: "Unique identifier for each event"
