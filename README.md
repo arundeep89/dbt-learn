@@ -64,3 +64,10 @@ Sample Jaffle shop metricflow [repo](https://github.com/dbt-labs/jaffle-sl-templ
 
 ## cube
 Sample Jaffle Shop [repo](https://github.com/cube-js/jaffle_shop_cube)
+
+## skills
+
+```bash
+npx skills add dbt-labs/dbt-agent-skills --skill using-dbt-for-analytics-engineering
+
+```
