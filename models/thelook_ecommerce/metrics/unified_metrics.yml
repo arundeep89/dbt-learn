@@ -22,4 +22,11 @@ metrics:
       metrics:
         - name: total_revenue
         - name: total_cost
+  - name: total_events
+    label: Total Events
+    description: "Total number of user events"
+    type: simple
+    type_params:
+      measure:
+        name: event_count
 

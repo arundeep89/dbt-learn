@@ -1,0 +1,35 @@
+version: 2
+
+semantic_models:
+  - name: sem_events
+    defaults:
+      agg_time_dimension: created_at
+    description: "Semantic model for user events. Enables segmentation by browser, event type, and traffic source. Joins to sem_order_item_detail via user_id to allow revenue metrics to be grouped by browser."
+    model: ref('fact_events')
+    entities:
+      - name: event_id
+        type: primary
+      - name: user_id
+        type: foreign
+      - name: session_id
+        type: foreign
+    dimensions:
+      - name: browser
+        type: categorical
+        description: "Browser used by the user during the event"
+      - name: event_type
+        type: categorical
+        description: "Type of event (e.g., page view, purchase, cart)"
+      - name: traffic_source
+        type: categorical
+        description: "Traffic source that led the user to the site"
+      - name: created_at
+        type: time
+        expr: cast(created_at as DATE)
+        type_params:
+          time_granularity: day
+    measures:
+      - name: event_count
+        description: "Total number of user events"
+        agg: count
+        expr: event_id
