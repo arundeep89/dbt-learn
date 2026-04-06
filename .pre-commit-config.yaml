@@ -57,3 +57,7 @@ repos:
   - id: check-model-has-all-columns
   # Ensures that the model has columns with descriptions in the properties file
   - id: check-model-columns-have-desc
+  # Ensures 2+ tests (e.g., unique & not_null on primary keys) per model
+  - id: check-model-has-tests
+    files: ^dbt/models/.*\.sql$
+    args: ["--test-cnt", "2"]
