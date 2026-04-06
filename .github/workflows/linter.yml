@@ -1,0 +1,95 @@
+---
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - 'dbt/**'
+      - 'profiles.yml'
+      - 'dbt_project.yml'
+      - 'packages.yml'
+      - 'requirements.txt'
+      - '.sqlfluff'
+      - '.sqlfluffignore'
+      - '.yamllint'
+      - '**/*.yml'
+      - '**/*.yaml'
+
+env:
+  DBT_PROJECT_DIR: ./
+  DBT_PROFILES_DIR: ./
+  DBT_GCP_JSON_KEY_FILE_LOCATION: /tmp/sa_key_file.json
+  DBT_GCP_JSON_KEY_FILE: ${{ secrets.DBT_GCP_JSON_KEY_FILE }}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  lint:
+    name: SQLFluff & YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up repository for diff
+        run: |
+          git fetch --no-tags --depth=1 origin master
+          git checkout master
+          git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.head.sha }}
+          git checkout ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Auth to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.DBT_GCP_JSON_KEY_FILE }} # Use the GitHub secret you created
+
+
+
+      - name: Install dbt packages
+        run: dbt deps
+
+      - name: Check spaces in file names
+        run: |
+          FILES_WITH_SPACES=$(git diff --diff-filter=d --name-only -r origin/master HEAD \
+            | grep " " \
+            | xargs || true)
+          if [ -n "$FILES_WITH_SPACES" ]; then
+            echo "Files with spaces found: $FILES_WITH_SPACES"
+            exit 1
+          fi
+
+      - name: SQLFluff Lint
+        run: |
+          MODIFIED_FILES=$(git diff --diff-filter=d --name-only -r origin/master HEAD \
+            | grep '\.sql$' \
+            | grep -v 'dbt/models/cae_single_run/' \
+            | grep -v 'temp_' \
+            | xargs || true)
+          if [ -n "$MODIFIED_FILES" ]; then
+            sqlfluff lint $MODIFIED_FILES
+          else
+            echo "No SQL files to lint"
+          fi
+
+      - name: YAMLLint
+        run: yamllint .

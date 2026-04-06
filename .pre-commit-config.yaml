@@ -1,0 +1,31 @@
+# only include staging, facts, and dimensions folders/files
+# exclude: ^(dbt/macros/|.*\/pre_staging\/|.*\/optimus_view\/)
+files: .*\/(marts|staging)\/.*\.(sql|yml|yaml)$
+fail_fast: true
+
+repos:
+- repo: local
+  hooks:
+  - id: dbt-docs-generate-selective
+    name: dbt docs generate (selective partial catalog)
+    entry: bash scripts/dbt_docs_selective.sh
+    language: system
+    pass_filenames: true
+
+- repo: https://github.com/dbt-checkpoint/dbt-checkpoint
+  rev: v2.0.7
+  hooks:
+  - id: dbt-parse
+    additional_dependencies: ['dbt-core==1.8.3', 'dbt-bigquery==1.8.3']  # adjust version and adapter
+  # Ensures that the script is using only source or ref macro to specify the table name
+  - id: check-script-has-no-table-name
+  # Ensure that the script does not have a semicolon at the end of the file
+  - id: check-script-semicolon
+  # Ensures that the model has a properties file (schema file)
+  - id: check-model-has-properties-file
+  # Ensures that the model has a description in the properties file 
+  - id: check-model-has-description
+  # Ensures that all columns in the database are also specified in the properties file
+  - id: check-model-has-all-columns
+  # Ensures that the model has columns with descriptions in the properties file
+  - id: check-model-columns-have-desc

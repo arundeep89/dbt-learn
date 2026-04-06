@@ -1,0 +1,69 @@
+[sqlfluff]
+dialect = bigquery
+templater = dbt
+exclude_rules = L016,L028,L031,L034
+large_file_skip_byte_limit = 0
+
+[sqlfluff:templater:dbt]
+project_dir = ./
+
+[sqlfluff:indentation]
+tab_space_size = 4
+indent_unit = space
+indented_joins = true
+indented_using_on = true
+indented_on_contents = False
+
+# alias rules
+# ALL "AS" should be aligned
+[sqlfluff:layout:type:alias_expression]
+spacing_before = align
+align_within = select_clause
+align_scope = bracketed
+
+# AS should be there in table aliases
+[sqlfluff:rules:aliasing.table]
+aliasing.table = explicit
+
+# AS should be there for renamed columns
+[sqlfluff:rules:aliasing.column]
+aliasing.column = explicit
+
+# AS should be there after SUM(), MAX() etc
+[sqlfluff:rules:aliasing.expression]
+aliasing.expression = explicit
+
+# capitalization rules
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+# all column names in lower case
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+
+# all functions in upper case
+[sqlfluff:rules:capitalisation.functions]
+capitalisation_policy = upper
+
+# comma rules
+[sqlfluff:rules:layout.commas]
+line_position = trailing
+
+# union rules
+[sqlfluff:rules:layout.set_operators]
+set_operator_on_new_line = ['UNION', 'UNION ALL', 'UNION DISTINCT']
+
+# use ALL numbers in GROUP BY, ORDER BY
+[sqlfluff:rules:ambiguous.column_references]
+group_by_and_order_by_style = explicit
+
+# subquery rules
+# remove the subquery from inside the join and transform it into CTE
+[sqlfluff:rules:structure.subquery]
+forbid_subquery_in = join
+
+# jinja tags should have a single whitespace on either side.
+[sqlfluff:rules:jinja.padding]
+
+# use nested CASE WHEN statements
+[sqlfluff:rules:structure.nested_case]

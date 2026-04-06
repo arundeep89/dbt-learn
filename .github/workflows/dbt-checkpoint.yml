@@ -1,0 +1,187 @@
+---
+name: "DBT Checkpoint"
+
+on:  # yamllint disable-line rule:truthy
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - "dbt/**/marts/**/*.sql"
+      - "dbt/**/marts/**/*.yml"
+
+
+env:
+  DBT_PROJECT_DIR: ./
+  DBT_PROFILES_DIR: ./
+  DBT_GCP_JSON_KEY_FILE_LOCATION: /tmp/sa_key_file.json
+  DBT_GCP_JSON_KEY_FILE: ${{ secrets.DBT_GCP_JSON_KEY_FILE }}
+
+jobs:
+  dbt-checkpoint:
+    name: Running dbt checkpoint (Optional)
+    runs-on: ["docker-runner"]
+    continue-on-error: true  # Makes this check optional - won't block PR merge
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write  # Required to update PR description
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Auth to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.DBT_GCP_JSON_KEY_FILE }} # Use the GitHub secret you created
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install dbt-core dbt-bigquery pre-commit
+
+      - name: Set up DBT profiles
+        run: |
+          # Convert GitHub username to match local schema naming convention
+          # e.g., "john.doe" -> "global_logistics_dev_john_doe"
+          USERNAME=$(echo "${{ github.actor }}" | tr '.' '_' | tr '-' '_' | tr '[:upper:]' '[:lower:]')
+          SCHEMA="global_logistics_dev_${USERNAME}"
+          echo "Using schema: $SCHEMA for user: ${{ github.actor }}"
+
+          # Set DBT_BQ_CUSTOM_DEV_SCHEMA so dbt_project.yml uses user's schema instead of core_dwh
+          echo "DBT_BQ_CUSTOM_DEV_SCHEMA=$SCHEMA" >> $GITHUB_ENV
+
+          cat <<EOT > $GITHUB_WORKSPACE/profiles.yml
+          local_bq:
+            target: local
+            outputs:
+              local:
+                type: bigquery
+                method: oauth
+                project: just-data-sandbox
+                execution_project: just-data-logistics-dev
+                dataset: $SCHEMA
+                threads: 1
+                timeout_seconds: 300
+                location: EU
+          EOT
+
+      - name: Install dbt packages
+        run: |
+          dbt deps --profiles-dir $GITHUB_WORKSPACE
+
+      - name: Running dbt checkpoint on changed files
+        id: checkpoint
+        run: |
+          # Get list of changed files in the PR
+          CHANGED_FILES=$(git diff --name-only --diff-filter=d origin/${{ github.base_ref }}...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Run dbt-checkpoint hooks via pre-commit on changed files
+          if [ -n "$CHANGED_FILES" ]; then
+            # Capture output and exit code
+            set +e
+            OUTPUT=$(pre-commit run --files $CHANGED_FILES 2>&1)
+            EXIT_CODE=$?
+            set -e
+
+            echo "$OUTPUT"
+
+            # Save output to file (handles multiline)
+            echo "$OUTPUT" > /tmp/checkpoint_output.txt
+
+            # Determine status
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "status=passed" >> $GITHUB_OUTPUT
+              echo "emoji=✅" >> $GITHUB_OUTPUT
+            else
+              echo "status=failed" >> $GITHUB_OUTPUT
+              echo "emoji=⚠️" >> $GITHUB_OUTPUT
+              SA="${{ vars.PIPELINE_SERVICE_ACCOUNT_BUILD }}"
+              echo "::warning::dbt Checkpoint failed (optional)." \
+                "If related to BigQuery access, grant ${SA}" \
+                "dataViewer on your dev dataset in just-data-sandbox."
+            fi
+          else
+            echo "No files to check"
+            echo "status=skipped" >> $GITHUB_OUTPUT
+            echo "emoji=⏭️" >> $GITHUB_OUTPUT
+            echo "No changed files in facts/dimensions folders" > /tmp/checkpoint_output.txt
+          fi
+
+      - name: Update PR description with results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            // Read checkpoint output
+            let checkpointOutput = '';
+            try {
+              checkpointOutput = fs.readFileSync('/tmp/checkpoint_output.txt', 'utf8');
+            } catch (e) {
+              checkpointOutput = 'No output captured';
+            }
+
+            // Truncate if too long (GitHub has limits)
+            const maxLength = 50000;
+            if (checkpointOutput.length > maxLength) {
+              checkpointOutput = checkpointOutput.substring(0, maxLength) + '\n... (truncated)';
+            }
+
+            // Get current PR
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const currentBody = pr.body || '';
+            const status = '${{ steps.checkpoint.outputs.status }}';
+            const emoji = '${{ steps.checkpoint.outputs.emoji }}';
+            const timestamp = new Date().toISOString();
+
+            // Create the checkpoint section
+            const checkpointSection = `
+            ## ${emoji} DBT Checkpoint Results
+
+            **Status:** ${status}
+            **Last Run:** ${timestamp}
+
+            <details>
+            <summary>Click to expand full output</summary>
+
+            \`\`\`
+            ${checkpointOutput}
+            \`\`\`
+
+            </details>
+            `;
+
+            // Remove existing checkpoint section if present
+            const sectionRegex = /\n*## (?:✅|⚠️|⏭️) DBT Checkpoint Results[\s\S]*?(?=\n## |\n*$)/g;
+            let newBody = currentBody.replace(sectionRegex, '');
+
+            // Insert before "Merge Conditions" heading if it exists, otherwise append
+            const mergeConditionsRegex = /(\n## Merge Conditions)/i;
+            if (mergeConditionsRegex.test(newBody)) {
+              newBody = newBody.replace(mergeConditionsRegex, '\n' + checkpointSection.trim() + '$1');
+            } else {
+              newBody = newBody.trim() + '\n\n' + checkpointSection.trim();
+            }
+
+            // Update PR
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              body: newBody
+            });
+
+            console.log('PR description updated with checkpoint results');
